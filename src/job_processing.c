@@ -33,6 +33,7 @@ void    ft_collect_job_status(void)
 		while (proc)
 		{
 			process = proc->content;
+			//printf("process status %d\n", process->status);
 			if (process->status == STOPED)
 			{
 				job->status = STOPED;
@@ -45,7 +46,7 @@ void    ft_collect_job_status(void)
 			n_proc++;
 			proc = proc->next;
 		}
-		if (n_proc == exited)
+		if (n_proc == exited && n_proc)
 			job->status = EXITED;
 		tmp = tmp->next;
 	}

@@ -277,9 +277,7 @@ void			ft_manage_jobs(int pid, t_pipes *st_pipes, int *rtn)
 		g_sign = 0;
 		if (WIFSTOPPED(*rtn))
 		{
-			job->status = STOPED;
 			tcgetattr(0, &job->term_child);
-			printf("\n[%d] Stopped  cmd\n", job->index);
 			ft_add_job(job);
 		}
 	}

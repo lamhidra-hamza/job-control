@@ -31,21 +31,22 @@ void	ft_catch_sigchild(int sig)
 	t_list *proc;
 	t_process *process;
 	t_list *head;
-	t_list *pr;
 
 	head = jobs;
-	pr = NULL;
 	sig = 0;
+	puts("*** hi");
 	while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
 	{
-		while (0 && jobs)
+		while (jobs)
 		{
-			ft_putendl("ok");
 			job = jobs->content;
 			proc = job->proc;
 			while (proc)
 			{
 				process = proc->content;
+				puts("child pid == ");
+				ft_putnbr(process->pid);
+				ft_putchar('\n');
 				if (pid == process->pid)
 				{
 					if (WIFSTOPPED(status))
@@ -57,28 +58,11 @@ void	ft_catch_sigchild(int sig)
 						sig = WTERMSIG(status);
 						process->status = TERMINATED;
 					}
-							/*if (WTERMSIG(status))
-							printf("[1]+  Terminated: 15\n");
-						else if (job->background)
-							printf("\n[%d] Done \n", 1);
-						if (pr == NULL)
-						{
-							pr = jobs;
-							jobs = jobs->next;
-							free(pr->content);
-							free(pr);
-						}
-						else
-						{
-							pr->next = jobs->next;
-							free(jobs->content);
-							free(jobs);
-						}*/
 					process->exit_status = status;
 					break ;
 				}
+				proc = proc->next;
 			}
-			pr = jobs;
 			jobs = jobs->next;
 		}
 	}
