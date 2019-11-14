@@ -62,7 +62,6 @@ void    ft_collect_job_status(void)
 		{
 			process = proc->content;
 			ft_putjoblst(job->pgid, process->pid, process->status);
-			//printf("process status %d\n", process->status);
 			if (process->status == STOPED)
 			{
 				job->status = STOPED;

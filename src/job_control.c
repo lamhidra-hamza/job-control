@@ -30,9 +30,8 @@ void	ft_catch_sigchild(int sig)
 	t_job *job;
 	t_list *proc;
 	t_process *process;
-	t_list *head;
+	t_list *tmp;
 
-	head = jobs;
 	sig = 0;
 	ft_putstr("\nSIG CHILD HEEEEEERRE\n");
 	while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
@@ -40,20 +39,22 @@ void	ft_catch_sigchild(int sig)
 		ft_putstr("CHILD PROCESS REPORTED pid == ");
 		ft_putnbr(pid);
 		ft_putchar('\n');
-		while (jobs)
+		tmp = jobs;
+		while (tmp)
 		{
 			job = jobs->content;
 			proc = job->proc;
 			while (proc)
 			{
 				process = proc->content;
+				ft_putstr("STATUS OF THE PROCESS BEFOR pid == ");
+				ft_putnbr(process->pid);
+				ft_putchar(' ');
+				ft_printstatus(process->status);
+				ft_putchar('\n');
 				if (pid == process->pid)
 				{
-					ft_putstr("STATUS OF THE PROCESS BEFOR pid == ");
-					ft_putnbr(pid);
-					ft_putchar(' ');
-					ft_printstatus(process->status);
-					ft_putchar('\n');
+					
 					if (WIFSTOPPED(status))
 						process->status = STOPED;
 					else if (WIFEXITED(status))
@@ -74,10 +75,9 @@ void	ft_catch_sigchild(int sig)
 				}
 				proc = proc->next;
 			}
-			jobs = jobs->next;
+			tmp = tmp->next;
 		}
 	}
-	jobs = head;
 	ft_collect_job_status();
 }
 
