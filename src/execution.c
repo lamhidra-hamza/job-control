@@ -130,6 +130,7 @@ t_job			*ft_inisial_job(void)
 	job->background = -1;
 	job->proc = NULL;
 	job->status = 0;
+	job->mark_stop = 0;
 	return (job);
 }
 

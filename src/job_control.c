@@ -53,8 +53,7 @@ void	ft_catch_sigchild(int sig)
 				ft_printstatus(process->status);
 				ft_putchar('\n');
 				if (pid == process->pid)
-				{
-					
+				{				
 					if (WIFSTOPPED(status))
 						process->status = STOPED;
 					else if (WIFEXITED(status))
@@ -65,7 +64,6 @@ void	ft_catch_sigchild(int sig)
 						process->status = TERMINATED;
 					}
 					process->exit_status = status;
-
 					ft_putstr("STATUS OF THE PROCESS AFTER pid == ");
 					ft_putnbr(pid);
 					ft_putchar(' ');

@@ -128,6 +128,7 @@ typedef struct			s_job
 	int					status;
 	t_list				*proc;
 	int					background;
+	int 				mark_stop;
 	struct termios		term_child;
 }						t_job;
 

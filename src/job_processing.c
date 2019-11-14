@@ -50,6 +50,7 @@ void    ft_collect_job_status(void)
 	int     terminated;
 
 	tmp = jobs;
+	puts("collecting");
 	while (tmp)
 	{
 		job = tmp->content;
@@ -65,7 +66,7 @@ void    ft_collect_job_status(void)
 			if (process->status == STOPED)
 			{
 				job->status = STOPED;
-				break ;
+				//break ;
 			}
 			if (process->status == TERMINATED)
 				terminated++;
@@ -74,7 +75,7 @@ void    ft_collect_job_status(void)
 			n_proc++;
 			proc = proc->next;
 		}
-		if (n_proc == exited + terminated && n_proc)
+		if (job->status != STOPED && n_proc == exited + terminated && n_proc)
 			job->status = EXITED;
 		tmp = tmp->next;
 	}
@@ -92,8 +93,11 @@ void    ft_job_processing(void)
 	while (tmp)
 	{
 		job = tmp->content;
-		if (job->status == STOPED)
-			ft_putstr("[1]+  Stopped\n");	
+		if (job->status == STOPED && !job->mark_stop)
+		{
+			job->mark_stop = 1;
+			ft_putstr("[1]+  Stopped\n");
+		}
 		if (job->status == EXITED)
 		{
 			ft_putstr("[1]  Done\n");
