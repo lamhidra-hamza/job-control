@@ -437,5 +437,6 @@ void					ft_add_job(t_job *job);
 void					ft_job_processing(void);
 void					ft_fill_process(int pid, t_job *job);
 void    ft_collect_job_status(void);
+void	ft_printstatus(int status);
 
 #endif

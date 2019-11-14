@@ -118,9 +118,9 @@ void			ft_pipe_job_management(t_job *job, t_pipes *st_pipes, int *status, int ad
 	while (proc != NULL)
 	{
 		p = proc->content;
-		puts("pid == ");
-		ft_putnbr(p->pid);
-		ft_putchar('\n');
+		// puts("pid == ");
+		// ft_putnbr(p->pid);
+		// ft_putchar('\n');
 		if (!st_pipes->bl_jobctr)
 		{
 			if (tcsetpgrp(0, job->pgid) == -1)
@@ -155,7 +155,6 @@ int				ft_apply_pipe(t_pipes *st_pipes)
 	st_head = st_pipes;
 	ft_create_pipes(st_pipes);
 	job = ft_inisial_job();
-	signal(SIGCHLD, SIG_DFL);
 	while (st_pipes != NULL)
 	{
 		if ((pid = fork()) == 0)
@@ -191,7 +190,6 @@ int				ft_apply_pipe(t_pipes *st_pipes)
 	}
 	ft_close_pipes(st_head);
 	ft_pipe_job_management(job, st_head, &status, add);
-	signal(SIGCHLD, ft_catch_sigchild);
 	return ((status) ? 0 : 1);
 }
 
@@ -207,9 +205,11 @@ int				ft_pipe(t_pipes *st_pipe)
 	if (!st_pipe)
 		return (-1); /// Check this status
 	/// if exist pipe
+		signal(SIGCHLD, SIG_DFL);
 	if (st_pipe && st_pipe->next)
 		status = ft_apply_pipe(st_pipe);
 	else
 		status = ft_cmd_fork(1, st_pipe);
+	signal(SIGCHLD, ft_catch_sigchild);
 	return (status);
 }
