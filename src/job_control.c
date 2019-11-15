@@ -81,26 +81,49 @@ void	ft_catch_sigchild(int sig)
 
 void	ft_foreground(void)
 {
-	t_job *process;
+	t_job *job;
+	t_list *proc;
+	t_process *process;
 	int status;
+	int stop;
 
-	process = jobs->content;
-	if (process->pgid == -1)
-		process = jobs->next->content;
-	ft_putnbr(process->pgid);
+	job = jobs->content;
+	ft_putnbr(job->pgid);
 	ft_putchar('\n');
-	if (process->status == STOPED || process->status == RUN)
+	stop = 0;
+	if (job->status == STOPED)
 	{
-		tcsetattr(0, TCSANOW, &process->term_child);
-		kill(process->pgid, SIGCONT);
-		if (tcsetpgrp(0, process->pgid) == -1)
+		tcsetattr(0, TCSANOW, &job->term_child);
+		if (tcsetpgrp(0, job->pgid) == -1)
 			ft_putendl_fd("ERROR in seting the controling terminal to the child process", 2);
-		process->status = RUN;
-		waitpid(process->pgid, &status, WUNTRACED);
-		if (WIFSTOPPED(status))
-			process->status = STOPED;
-		if (tcsetpgrp(0, getpgrp()) == -1)
-			ft_putendl_fd("ERROR in reset the controling terminal to the parent process", 2);
+		proc = job->proc;
+		while (proc)
+		{
+			process = proc->content;
+			ft_putjoblst(job->pgid, process->pid, process->status);
+			if (stop)
+			{
+				kill(process->pid, SIGTSTP);
+				process->status = STOPED;
+				proc = proc->next;
+				continue ;
+			}
+			kill(process->pid, SIGCONT);
+			process->status = RUN;
+			if (proc->next == NULL)
+				waitpid(process->pid, &status, WUNTRACED);
+			if (WIFSTOPPED(status))
+			{
+				stop = 1;
+				tcgetattr(0, &job->term_child);
+				proc = job->proc;
+				process->status = STOPED;
+				continue ;
+			}
+			if (tcsetpgrp(0, getpgrp()) == -1)
+				ft_putendl_fd("ERROR in reset the controling terminal to the parent process", 2);
+			proc = proc->next;
+		}
 	}
 	
 }
