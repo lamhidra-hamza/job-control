@@ -81,6 +81,11 @@ void    ft_collect_job_status(void)
 	}
 }
 
+// void	ft_put_sig_message(int sig)
+// {
+// 	if ()
+// }
+
 void    ft_job_processing(void)
 {
 	t_list *tmp;
@@ -100,7 +105,7 @@ void    ft_job_processing(void)
 		}
 		if (job->status == EXITED)
 		{
-			ft_putstr("[1]  Done\n");
+			ft_print_termsig(job->sig_term, "cmd");
 			if (pr == NULL)
 			{
 				tmp = tmp->next;

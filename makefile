@@ -48,6 +48,7 @@ OBJS = error_handler.o\
 	read_line/clear_line_or_window.o\
 	job_control.o\
 	job_processing.o\
+	msg_sig.c
 
 FLAG = -Wall -Wextra -Werror 
 INCL = ./includes

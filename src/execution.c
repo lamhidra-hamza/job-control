@@ -131,6 +131,7 @@ t_job			*ft_inisial_job(void)
 	job->proc = NULL;
 	job->status = 0;
 	job->mark_stop = 0;
+	job->sig_term = 0;
 	return (job);
 }
 
@@ -264,34 +265,34 @@ void			remove_backslashs(char **args)
 void			ft_manage_jobs(int pid, t_pipes *st_pipes, int *rtn)
 {
 	t_job *job;
-	
+	t_process *process;
+	int add;
+
 	job = ft_inisial_job();
 	job->pgid = pid;
 	setpgid(job->pgid, pid);
 	job->status = RUN;
+	ft_fill_process(pid, job);
 	if (!st_pipes->bl_jobctr)
 	{
 		if (tcsetpgrp(0, job->pgid) == -1)
 			ft_putendl("ERROR in seting the controling terminal to the child process");
 		g_sign = 1;
-		waitpid(job->pgid, rtn, WUNTRACED);
+		ft_wait(job);
 		g_sign = 0;
-		if (WIFSTOPPED(*rtn))
-		{
-			tcgetattr(0, &job->term_child);
-			ft_add_job(job);
-		}
 	}
 	else
 	{
 		job->background = 1;
 		printf("[%d] %d\n", job->index, job->pgid);
-		ft_add_job(job);
+		add = 1;
 		ft_fill_process(pid, job);
 	}
 	if (tcsetpgrp(0, getpid()) == -1)
 		ft_putendl("ERROR in reset the controling terminal to the parent process");
-	
+	process = job->proc->content;
+	*rtn = process->exit_status;
+	(job->status == STOPED || add) ? ft_add_job(job) : 0;
 }
 
 /*

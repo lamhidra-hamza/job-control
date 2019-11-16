@@ -129,6 +129,7 @@ typedef struct			s_job
 	t_list				*proc;
 	int					background;
 	int 				mark_stop;
+	int					sig_term;
 	struct termios		term_child;
 }						t_job;
 
@@ -440,5 +441,7 @@ void					ft_fill_process(int pid, t_job *job);
 void    ft_collect_job_status(void);
 void	ft_printstatus(int status);
 void	ft_putjoblst(int pgid, int pid, int status);
+char	ft_print_termsig(int sig, char *name);
+void 	ft_wait(t_job *current);
 
 #endif

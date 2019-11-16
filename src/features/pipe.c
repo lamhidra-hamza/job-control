@@ -118,40 +118,23 @@ void			ft_pipe_job_management(t_job *job, t_pipes *st_pipes, int *status, int ad
 	proc = job->proc;
 	stop = 0;
 	if (!st_pipes->bl_jobctr)
+	{
 		if (tcsetpgrp(0, job->pgid) == -1)
 			ft_putendl("ERROR in seting the controling terminal to the child process");
-	while (proc != NULL)
+		g_sign = 1;
+		ft_wait(job);
+		g_sign = 0;
+	}
+	if (tcsetpgrp(0, getpid()) == -1)
+		ft_putendl("ERROR in reset the controling terminal to the parent process");
+	while (proc)
 	{
 		p = proc->content;
-		puts("pid == ");
-		ft_putnbr(job->pgid);
-		ft_putchar('\n');
-		if (stop)
-		{
-			kill(p->pid, SIGTSTP);
-			p->status = STOPED;
-			proc = proc->next;
-			continue ;
-		}
-		else if (!st_pipes->bl_jobctr)
-		{
-			g_sign = 1;
-			waitpid(p->pid, &p->exit_status, WUNTRACED);
-			g_sign = 0;
-			if (WIFSTOPPED(p->exit_status))
-			{
-				add = 1;
-				stop = 1;
-				tcgetattr(0, &job->term_child);
-				proc = job->proc;
-			}
-		}
-		if (tcsetpgrp(0, getpid()) == -1)
-			ft_putendl("ERROR in reset the controling terminal to the parent process");
 		*status = p->exit_status;
 		proc = proc->next;
 	}
-	(add) ? ft_add_job(job) : 0;
+	(job->status == STOPED || add) ? ft_add_job(job) : 0;
+	//ft_collect_job_status();
 }
 
 int				ft_apply_pipe(t_pipes *st_pipes)
@@ -203,7 +186,7 @@ int				ft_apply_pipe(t_pipes *st_pipes)
 	}
 	ft_close_pipes(st_head);
 	ft_pipe_job_management(job, st_head, &status, add);
-	ft_catch_sigchild(0);
+	//ft_catch_sigchild(0);
 	signal(SIGCHLD, ft_catch_sigchild);
 	return ((status) ? 0 : 1);
 }
