@@ -121,7 +121,7 @@ void ft_wait(t_job *current)
 		else
 			while (tmp)
 			{
-				job = jobs->content;
+				job = tmp->content;
 				ft_updatestatus(job, status, pid);
 				tmp = tmp->next;
 			}
@@ -158,9 +158,52 @@ void	ft_foreground(void)
 	}
 }
 
+void		ft_update_p(void)
+{
+	t_list *tmp;
+	t_job	*job;
+	int		add;
+
+	tmp = jobs;
+	add = 0;
+	while (tmp)
+	{
+		job = tmp->content;
+		if (add == 0)
+			job->p = '+';
+		if (add == 1)
+			job->p = '-';
+		if (add > 1)
+			job->p = 0;
+		add++;
+		tmp = tmp->next;
+	}
+}
+
 void		ft_add_job(t_job *job)
 {
 	(!jobs) ? (jobs = ft_lstnew(NULL, sizeof(t_job))) :
 	(ft_lstadd(&jobs, ft_lstnew(NULL, sizeof(t_job))));
 	jobs->content = job;
+	ft_update_p();
 }
+
+int			ft_job_index(void)
+{
+	t_job *job;
+
+	if (jobs)
+	{
+		job = jobs->content;
+		return (job->index + 1);
+	}
+	return (1);
+}
+
+
+
+
+
+
+
+

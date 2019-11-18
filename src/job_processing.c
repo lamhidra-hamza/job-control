@@ -105,7 +105,7 @@ void    ft_job_processing(void)
 		}
 		if (job->status == EXITED)
 		{
-			ft_print_termsig(job->sig_term, "cmd");
+			ft_print_termsig_back(job->sig_term, job->cmd, job->index, job->p);
 			if (pr == NULL)
 			{
 				tmp = tmp->next;

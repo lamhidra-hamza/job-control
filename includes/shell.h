@@ -130,6 +130,8 @@ typedef struct			s_job
 	int					background;
 	int 				mark_stop;
 	int					sig_term;
+	char 				*cmd;
+	char				p;
 	struct termios		term_child;
 }						t_job;
 
@@ -434,14 +436,17 @@ void					ft_foreground(void);
 void					ft_continue(void);
 void					ft_catch_sigchild(int sig);
 void					ft_manage_jobs(int pid, t_pipes *st_pipes, int *rtn);
-t_job					*ft_inisial_job(void);
 void					ft_add_job(t_job *job);
 void					ft_job_processing(void);
 void					ft_fill_process(int pid, t_job *job);
 void    ft_collect_job_status(void);
 void	ft_printstatus(int status);
 void	ft_putjoblst(int pgid, int pid, int status);
-char	ft_print_termsig(int sig, char *name);
+int		ft_print_termsig_fore(int sig, char *name);
 void 	ft_wait(t_job *current);
+int			ft_job_index(void);
+t_job			*ft_inisial_job(void);
+char 			*ft_cmd_value(t_tokens *st_tokens, char *cmd);
+int		ft_print_termsig_back(int sig, char *name, int index, char p);
 
 #endif

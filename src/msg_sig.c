@@ -19,7 +19,7 @@ char	*ft_getsigstr1_12(int sig)
 	if (!str[0])
 	{
 		ft_bzero(str, 13);
-		str[0] = "done";
+		str[0] = "Done";
 		str[1] = "hangup";
 		str[2] = "Interrupt";
 		str[3] = "Quit";
@@ -74,7 +74,7 @@ char	*ft_strsignal(int sig)
 	return (str);
 }
 
-char	ft_print_termsig(int sig, char *name)
+int		ft_print_termsig_fore(int sig, char *name)
 {
 	char	*msg;
 
@@ -86,3 +86,25 @@ char	ft_print_termsig(int sig, char *name)
 	return (1);
 }
 
+int		ft_print_termsig_back(int sig, char *name, int index, char p)
+{
+	char *msg;
+
+	msg = ft_strsignal(sig);
+
+	if (msg)
+	{
+		ft_putchar('[');
+		ft_putnbr(index);
+		ft_putchar(']');
+		(p != 0) ? ft_putchar(p) : 0;
+		ft_putstr("  ");
+		ft_putstr(msg);
+		ft_putstr("\t\t\t");
+		ft_putstr(name);
+		ft_putchar('\n');
+	}
+	else
+		return (0);
+	return (1);
+}

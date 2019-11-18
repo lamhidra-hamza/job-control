@@ -120,18 +120,31 @@ static void		logical_ops(t_logopr *st_logopr)
  ** Execute cmds
  */
 
+char 			*ft_cmd_value(t_tokens *st_tokens, char *cmd)
+{
+	while (st_tokens)
+	{
+		cmd = ft_strjoir_rtn(cmd, st_tokens->value, 1);
+		cmd = ft_strjoir_rtn(cmd, " ", 1);
+		st_tokens = st_tokens->next;
+	}
+	return (cmd);
+}
+
 t_job			*ft_inisial_job(void)
 {
 	t_job *job;
 
 	job = ft_memalloc(sizeof(t_job));
 	job->pgid = -1;
-	job->index = 1;
+	job->index = ft_job_index();
 	job->background = -1;
 	job->proc = NULL;
 	job->status = 0;
 	job->mark_stop = 0;
 	job->sig_term = 0;
+	job->p = '+';
+	job->cmd = ft_strdup("");
 	return (job);
 }
 
@@ -268,7 +281,9 @@ void			ft_manage_jobs(int pid, t_pipes *st_pipes, int *rtn)
 	t_process *process;
 	int add;
 
+	add = 0;
 	job = ft_inisial_job();
+	job->cmd = ft_cmd_value(st_pipes->st_tokens, job->cmd);
 	job->pgid = pid;
 	setpgid(job->pgid, pid);
 	job->status = RUN;
@@ -280,13 +295,13 @@ void			ft_manage_jobs(int pid, t_pipes *st_pipes, int *rtn)
 		g_sign = 1;
 		ft_wait(job);
 		g_sign = 0;
+		(job->sig_term != 0) ? ft_print_termsig_fore(job->sig_term, job->cmd) : 0;
 	}
 	else
 	{
 		job->background = 1;
 		printf("[%d] %d\n", job->index, job->pgid);
 		add = 1;
-		ft_fill_process(pid, job);
 	}
 	if (tcsetpgrp(0, getpid()) == -1)
 		ft_putendl("ERROR in reset the controling terminal to the parent process");

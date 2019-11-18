@@ -168,6 +168,9 @@ int				ft_apply_pipe(t_pipes *st_pipes)
 		}
 		else
 		{
+			job->cmd = ft_cmd_value(st_pipes->st_tokens, job->cmd);
+			if (st_pipes->next)
+				job->cmd = ft_strjoir_rtn(job->cmd, " | ", 1);
 			if (job->pgid == -1)
 			{
 				job->pgid = pid;
