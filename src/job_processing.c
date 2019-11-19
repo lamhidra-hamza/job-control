@@ -46,6 +46,7 @@ void    ft_collect_job_status(void)
 	t_process *process;
 	int     n_proc;
 	int     exited;
+	int		stoped;
 	int     terminated;
 
 	tmp = jobs;
@@ -55,13 +56,14 @@ void    ft_collect_job_status(void)
 		proc = job->proc;
 		n_proc = 0;
 		exited = 0;
+		stoped = 0;
 		terminated = 0;
 		while (proc)
 		{
 			process = proc->content;
 		//	ft_putjoblst(job->pgid, process->pid, process->status);
 			if (process->status == STOPED)
-				job->status = STOPED;
+				stoped++;
 			if (process->status == TERMINATED)
 				terminated++;
 			if (process->status == EXITED)
@@ -69,7 +71,9 @@ void    ft_collect_job_status(void)
 			n_proc++;
 			proc = proc->next;
 		}
-		if (job->status != STOPED && n_proc == exited + terminated && n_proc)
+		if (stoped)
+			job->status = STOPED;
+		else if ((exited || terminated) && n_proc)
 			job->status = EXITED;
 		tmp = tmp->next;
 	}

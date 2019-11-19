@@ -234,7 +234,7 @@ void	ft_foreground(void)
 	{
 		if (tcsetpgrp(0, job->pgid) == -1)
 			ft_putendl_fd("ERROR in seting the controling terminal to the child process", 2);
-		killpg(job->pgid, SIGCONT);
+		printf("ret == %d\n", killpg(job->pgid, SIGCONT));
 		job->status = RUN;
 		g_sign = 1;
 		ft_wait(job);
