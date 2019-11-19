@@ -176,14 +176,14 @@ void ft_wait(t_job *current)
 			if (ft_terminated(current) || ft_stoped(current))
 					return ;
 		}
-		else
-			while (tmp)
-			{
-				job = tmp->content;
-				ft_updatestatus(job, status, pid);
-				tmp = tmp->next;
-			}
+		while (tmp)
+		{
+			job = tmp->content;
+			ft_updatestatus(job, status, pid);
+			tmp = tmp->next;
+		}
 	}
+	ft_collect_job_status();
 }
 
 void	ft_catch_sigchild(int sig)
@@ -191,7 +191,6 @@ void	ft_catch_sigchild(int sig)
 
 	sig = 0;
 	ft_wait(NULL);
-	ft_collect_job_status();
 }
 
 void	ft_jobs_built(void)

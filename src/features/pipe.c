@@ -148,7 +148,7 @@ int				ft_apply_pipe(t_pipes *st_pipes)
 	status = 0;
 	add = 0;
 	st_head = st_pipes;
-		signal(SIGCHLD, SIG_DFL);
+	signal(SIGCHLD, SIG_DFL);
 	ft_create_pipes(st_pipes);
 	job = ft_inisial_job();
 	while (st_pipes != NULL)
