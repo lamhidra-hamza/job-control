@@ -40,7 +40,7 @@ char	*ft_getsigstr1_12(int sig)
 
 char	*ft_getsigstr13_31(int sig)
 {
-	static char *str[20];
+	static char *str[21];
 
 	if (!str[0])
 	{
@@ -57,8 +57,9 @@ char	*ft_getsigstr13_31(int sig)
 		str[15] = "Profiling timer expired";
 		str[18] = "User defined signal 1";
 		str[19] = "User defined signal 2";
+		str[20] = "Stopped";
 	}
-	if (sig >= 13 && sig <= 31)
+	if (sig >= 13 && sig <= 32)
 		return (str[sig - 12]);
 	return (NULL);
 }
@@ -79,8 +80,15 @@ int		ft_print_termsig_fore(int sig, char *name)
 	char	*msg;
 
 	msg = ft_strsignal(sig);
-	if (msg)
-		printf("42sh : %s : %d \t %s\n", msg, sig, name);
+	if (msg && sig != 2)
+	{
+		ft_putstr("42sh : ");
+		ft_putstr(msg);
+		ft_putstr(" : ");
+		ft_putnbr(sig);
+		ft_putstr("\t ");
+		ft_putendl(name);
+	}
 	else
 		return (0);
 	return (1);
@@ -91,18 +99,16 @@ int		ft_print_termsig_back(int sig, char *name, int index, char p)
 	char *msg;
 
 	msg = ft_strsignal(sig);
-
 	if (msg)
 	{
 		ft_putchar('[');
 		ft_putnbr(index);
 		ft_putchar(']');
-		(p != 0) ? ft_putchar(p) : 0;
+		(p != 0) ? ft_putchar(p) : ft_putchar(' ');
 		ft_putstr("  ");
 		ft_putstr(msg);
 		ft_putstr("\t\t\t");
-		ft_putstr(name);
-		ft_putchar('\n');
+		ft_putendl(name);
 	}
 	else
 		return (0);

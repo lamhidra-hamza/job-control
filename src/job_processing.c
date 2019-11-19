@@ -14,15 +14,14 @@
 
 void	ft_printstatus(int status)
 {
-	ft_putstr("status == ");
 	if (status == STOPED)
-		ft_putendl("STOPED");
+		ft_putstr("Stopped");
 	if (status == RUN)
-		ft_putendl("RUN");
+		ft_putstr("Running");
 	if (status == TERMINATED)
-		ft_putendl("TERMINATED");
+		ft_putstr("Terminated");
 	if (status == EXITED)
-		ft_putendl("EXITED");
+		ft_putstr("Exited");
 }
 
 void	ft_putjoblst(int pgid, int pid, int status)
@@ -50,7 +49,6 @@ void    ft_collect_job_status(void)
 	int     terminated;
 
 	tmp = jobs;
-	puts("collecting");
 	while (tmp)
 	{
 		job = tmp->content;
@@ -58,16 +56,12 @@ void    ft_collect_job_status(void)
 		n_proc = 0;
 		exited = 0;
 		terminated = 0;
-		ft_putstr("job ============\n");
 		while (proc)
 		{
 			process = proc->content;
-			ft_putjoblst(job->pgid, process->pid, process->status);
+		//	ft_putjoblst(job->pgid, process->pid, process->status);
 			if (process->status == STOPED)
-			{
 				job->status = STOPED;
-				//break ;
-			}
 			if (process->status == TERMINATED)
 				terminated++;
 			if (process->status == EXITED)
@@ -81,11 +75,6 @@ void    ft_collect_job_status(void)
 	}
 }
 
-// void	ft_put_sig_message(int sig)
-// {
-// 	if ()
-// }
-
 void    ft_job_processing(void)
 {
 	t_list *tmp;
@@ -95,13 +84,19 @@ void    ft_job_processing(void)
 	tmp = jobs;
 	pr  = NULL;
 
+	ft_update_p();
+	ft_update_index();
+	//ft_catch_sigchild(0);
 	while (tmp)
 	{
 		job = tmp->content;
+		// ft_printstatus(job->status);
+		// ft_putchar('\n');
 		if (job->status == STOPED && !job->mark_stop)
 		{
 			job->mark_stop = 1;
-			ft_putstr("[1]+  Stopped\n");
+			ft_putchar('\n');
+			ft_print_termsig_back(32, job->cmd, job->index, job->p);
 		}
 		if (job->status == EXITED)
 		{

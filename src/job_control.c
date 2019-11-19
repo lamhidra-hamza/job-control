@@ -13,13 +13,87 @@
 #include "shell.h"
 #include "read_line.h"
 
+void		ft_update_p(void)
+{
+	t_list *tmp;
+	t_job	*job;
+	int		add;
+
+	tmp = jobs;
+	add = 0;
+	while (tmp)
+	{
+		job = tmp->content;
+		if (add == 0)
+			job->p = '+';
+		if (add == 1)
+			job->p = '-';
+		if (add > 1)
+			job->p = 0;
+		add++;
+		tmp = tmp->next;
+	}
+}
+
+int			ft_lst_len(t_list *tmp)
+{
+	int i;
+
+	i = 0;
+	while (tmp)
+	{
+		i++;
+		tmp = tmp->next;
+	}
+	return (i);
+}
+
+void		ft_update_index(void)
+{
+	t_list *tmp;
+	t_job	*job;
+	int		len;
+
+	tmp = jobs;
+	len = ft_lst_len(tmp);
+	while (tmp)
+	{
+		job = tmp->content;
+		job->index = len--;
+		tmp = tmp->next;
+	}
+}
+
 void	ft_continue(void)
 {
-	t_job *process;
+	t_list *tmp;
+	t_job *job;
 
-	process = jobs->content;
-	if (process->status == STOPED)
-		killpg(process->pgid, SIGCONT);
+	if (!jobs)
+	{
+		ft_putendl_fd("42sh: bg: current: no such job", 2);
+		return ;
+	}
+	tmp = jobs;
+	while (tmp)
+	{
+		job = tmp->content;
+		if (job->status == STOPED)
+		{
+			ft_putchar('[');
+			ft_putnbr(job->index);
+			ft_putchar(']');
+			(job->p) ? ft_putchar(job->p) : ft_putchar(' ');
+			ft_putchar(' ');
+			ft_putstr(job->cmd);
+			ft_putstr(" &\n");
+			job->background = 1;
+			job->status = RUN;
+			killpg(job->pgid, SIGCONT);
+			break ;
+		}
+		tmp = tmp->next;
+	}
 }
 
 char	ft_stoped(t_job *job)
@@ -67,11 +141,6 @@ void	ft_updatestatus(t_job *job, int status, int pid)
 	while (proc)
 	{
 		process = proc->content;
-		ft_putstr("STATUS OF THE PROCESS BEFOR pid == ");
-		ft_putnbr(process->pid);
-		ft_putchar(' ');
-		ft_printstatus(process->status);
-		ft_putchar('\n');
 		if (pid == process->pid)
 		{
 			process->status = EXITED;
@@ -80,11 +149,6 @@ void	ft_updatestatus(t_job *job, int status, int pid)
 			if (WIFSIGNALED(status))
 				job->sig_term = WTERMSIG(status);
 			process->exit_status = status;
-			ft_putstr("STATUS OF THE PROCESS AFTER pid == ");
-			ft_putnbr(pid);
-			ft_putchar(' ');
-			ft_printstatus(process->status);
-			ft_putchar('\n');
 		}
 		proc = proc->next;
 	}
@@ -104,13 +168,7 @@ void ft_wait(t_job *current)
 		if (pid == 0 && current)
 			continue;
 		else if (pid == 0)
-		{
-			ft_putstr("breaking\n");
-			break;
-		}
-		// ft_putstr("CHILD PROCESS REPORTED pid == ");
-		// ft_putnbr(pid);
-		// ft_putchar('\n');
+			break ;
 		tmp = jobs;
 		if (current)
 		{
@@ -132,18 +190,46 @@ void	ft_catch_sigchild(int sig)
 {
 
 	sig = 0;
-	//ft_putstr("\nSIG CHILD HEEEEEERRE\n");
 	ft_wait(NULL);
 	ft_collect_job_status();
+}
+
+void	ft_jobs_built(void)
+{
+	t_list *tmp;
+	t_job	*job;
+
+	tmp = jobs;
+	while (tmp)
+	{
+		job = tmp->content;
+		ft_putchar('[');
+		ft_putnbr(job->index);
+		ft_putchar(']');
+		(job->p != 0) ? ft_putchar(job->p) : ft_putchar(' ');
+		ft_putstr("  ");
+		ft_printstatus(job->status);
+		ft_putstr("\t\t\t");
+		ft_putstr(job->cmd);
+		ft_putchar(' ');
+		(job->background) ? ft_putchar('&') : 0;
+		ft_putchar('\n');
+		tmp = tmp->next;
+	}
 }
 
 void	ft_foreground(void)
 {
 	t_job *job;
+	t_list *tmp;
 
+	if (!jobs)
+	{
+		ft_putendl_fd("42sh: fg: current: no such job", 2);
+		return ;
+	}
 	job = jobs->content;
-	ft_putnbr(job->pgid);
-	ft_putchar('\n');
+	tmp = jobs;
 	if (job->status == STOPED)
 	{
 		if (tcsetpgrp(0, job->pgid) == -1)
@@ -153,32 +239,19 @@ void	ft_foreground(void)
 		g_sign = 1;
 		ft_wait(job);
 		g_sign = 0;
+		if (job->status == EXITED)
+		{
+			ft_print_termsig_fore(job->sig_term, job->cmd);
+			tmp = tmp->next;
+			free(jobs->content);
+			free(jobs);
+			jobs = tmp;
+		}
 		if (tcsetpgrp(0, getpgrp()) == -1)
 			ft_putendl_fd("ERROR in reset the controling terminal to the parent process", 2);
 	}
 }
 
-void		ft_update_p(void)
-{
-	t_list *tmp;
-	t_job	*job;
-	int		add;
-
-	tmp = jobs;
-	add = 0;
-	while (tmp)
-	{
-		job = tmp->content;
-		if (add == 0)
-			job->p = '+';
-		if (add == 1)
-			job->p = '-';
-		if (add > 1)
-			job->p = 0;
-		add++;
-		tmp = tmp->next;
-	}
-}
 
 void		ft_add_job(t_job *job)
 {
@@ -199,11 +272,5 @@ int			ft_job_index(void)
 	}
 	return (1);
 }
-
-
-
-
-
-
 
 

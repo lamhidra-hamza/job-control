@@ -62,6 +62,8 @@ int			ft_call_built(t_pipes *st_pipes, char ***tmp_env)
 		ft_foreground();
 	else if (!ft_strcmp(st_pipes->args[0], "bg"))
 		ft_continue();
+	else if (!ft_strcmp(st_pipes->args[0], "jobs"))
+		ft_jobs_built();
 	while (st_pipes->st_redir != NULL)
 	{
 		if (st_pipes->st_redir->fd_des != -1)
@@ -88,7 +90,7 @@ int			ft_check_built(char *arg)
 		rtn++;
 	else if (!ft_strcmp(arg, "cd") || !ft_strcmp(arg, "type"))
 		rtn++;
-	else if (!ft_strcmp(arg, "fg") || !ft_strcmp(arg, "bg"))
+	else if (!ft_strcmp(arg, "fg") || !ft_strcmp(arg, "bg") || !ft_strcmp(arg, "jobs"))
 		rtn++;
 	return (rtn);
 }
