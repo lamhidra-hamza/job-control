@@ -84,7 +84,6 @@ static void     ft_fill_logopr(t_jobctr *st_jobctr)
 		st_temp = st_temp->next;
 	}
 	st_logopr->bl_jobctr = st_jobctr->status;
-
 }
 
 static void     ft_fill_pipe(t_logopr *st_logopr)

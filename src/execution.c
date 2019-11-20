@@ -120,16 +120,7 @@ static void		logical_ops(t_logopr *st_logopr)
  ** Execute cmds
  */
 
-char 			*ft_cmd_value(t_tokens *st_tokens, char *cmd)
-{
-	while (st_tokens)
-	{
-		cmd = ft_strjoir_rtn(cmd, st_tokens->value, 1);
-		cmd = ft_strjoir_rtn(cmd, " ", 1);
-		st_tokens = st_tokens->next;
-	}
-	return (cmd);
-}
+
 
 static void		ft_cmds_exec(t_cmds *st_cmds)
 {

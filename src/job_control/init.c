@@ -12,6 +12,17 @@
 
 #include "shell.h"
 
+char 			*ft_cmd_value(t_tokens *st_tokens, char *cmd)
+{
+	while (st_tokens)
+	{
+		cmd = ft_strjoir_rtn(cmd, st_tokens->value, 1);
+		cmd = ft_strjoir_rtn(cmd, " ", 1);
+		st_tokens = st_tokens->next;
+	}
+	return (cmd);
+}
+
 t_job	*ft_inisial_job(void)
 {
 	t_job *job;
