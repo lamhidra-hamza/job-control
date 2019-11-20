@@ -162,7 +162,7 @@ int				ft_apply_pipe(t_pipes *st_pipes)
 	int		status;
 	int		pid;
 	int		add;
-	
+
 	status = 0;
 	add = 0;
 	st_head = st_pipes;
