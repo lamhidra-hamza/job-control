@@ -220,10 +220,29 @@ void	ft_jobs_built(void)
 	}
 }
 
+void	ft_remove_node(t_list *tmp, t_list *pr)
+{
+	if (pr == NULL)
+	{
+		tmp = tmp->next;
+		free(jobs->content);
+		free(jobs);
+		jobs = tmp;
+	}
+	else
+	{
+		pr->next = tmp->next;
+		free(tmp->content);
+		free(tmp);
+		tmp = pr;
+	}
+}
+
 void	ft_foreground(void)
 {
 	t_job *job;
 	t_list *tmp;
+	t_list *pr;
 
 	if (!jobs)
 	{
@@ -232,25 +251,28 @@ void	ft_foreground(void)
 	}
 	job = jobs->content;
 	tmp = jobs;
-	if (job->status == STOPED)
+	pr = NULL;
+	while (tmp)
 	{
-		if (tcsetpgrp(0, job->pgid) == -1)
-			ft_putendl_fd("ERROR in seting the controling terminal to the child process", 2);
-		killpg(job->pgid, SIGCONT);
-		job->status = RUN;
-		g_sign = 1;
-		ft_wait(job);
-		g_sign = 0;
-		if (job->status == EXITED)
+		if (job->status == STOPED)
 		{
-			ft_print_termsig_fore(job->sig_term, job->cmd);
-			tmp = tmp->next;
-			free(jobs->content);
-			free(jobs);
-			jobs = tmp;
+			if (tcsetpgrp(0, job->pgid) == -1)
+				ft_putendl_fd("ERROR in seting the controling terminal to the child process", 2);
+			signal(SIGCHLD, SIG_DFL);
+			killpg(job->pgid, SIGCONT);
+			job->status = RUN;
+			g_sign = 1;
+			ft_wait(job);
+			g_sign = 0;
+			(job->sig_term != 0) ? ft_print_termsig_fore(job->sig_term, job->cmd) : 0;
+			if (job->status == EXITED)
+				ft_remove_node(tmp, pr);
+			if (tcsetpgrp(0, getpgrp()) == -1)
+				ft_putendl_fd("ERROR in reset the controling terminal to the parent process", 2);
+			signal(SIGCHLD, ft_catch_sigchild);
 		}
-		if (tcsetpgrp(0, getpgrp()) == -1)
-			ft_putendl_fd("ERROR in reset the controling terminal to the parent process", 2);
+		pr = tmp;
+		tmp = tmp ? tmp = tmp->next : tmp;
 	}
 }
 
