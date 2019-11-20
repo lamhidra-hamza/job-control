@@ -13,6 +13,12 @@
 #include "shell.h"
 #include "read_line.h"
 
+void	ft_catch_sigchild(int sig)
+{
+	sig = 0;
+	ft_wait(NULL);
+}
+
 /*
 ** ft_catch_signal : CTR + c
 */

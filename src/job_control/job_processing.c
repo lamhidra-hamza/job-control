@@ -30,21 +30,19 @@ void	ft_putjoblst(int pgid, int pid, int status)
 	ft_putstr("pgid == ");
 	ft_putnbr(pgid);
 	ft_putchar('\n');
-
 	ft_putstr("pid == ");
 	ft_putnbr(pid);
 	ft_putchar('\n');
-
 	ft_printstatus(status);
 }
 
 int		ft_get_job_status(t_list *proc, int status)
 {
-	t_process *process;
-	int     n_proc;
-	int     exited;
-	int		stoped;
-	int     terminated;
+	t_process	*process;
+	int			n_proc;
+	int			exited;
+	int			stoped;
+	int			terminated;
 
 	n_proc = 0;
 	exited = 0;
@@ -66,11 +64,11 @@ int		ft_get_job_status(t_list *proc, int status)
 	return (status);
 }
 
-void    ft_collect_job_status(void)
+void	ft_collect_job_status(void)
 {
-	t_list *tmp;
-	t_list *proc;
-	t_job  *job;
+	t_list	*tmp;
+	t_list	*proc;
+	t_job	*job;
 
 	tmp = jobs;
 	while (tmp)
@@ -82,15 +80,14 @@ void    ft_collect_job_status(void)
 	}
 }
 
-void    ft_job_processing(void)
+void	ft_job_processing(void)
 {
-	t_list *tmp;
-	t_job   *job;
-	t_list *pr;
+	t_list	*tmp;
+	t_job	*job;
+	t_list	*pr;
 
 	tmp = jobs;
-	pr  = NULL;
-
+	pr = NULL;
 	ft_update_p();
 	ft_update_index();
 	while (tmp)

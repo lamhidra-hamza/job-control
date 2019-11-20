@@ -442,7 +442,7 @@ void					ft_fill_process(int pid, t_job *job);
 void    ft_collect_job_status(void);
 void	ft_printstatus(int status);
 void	ft_putjoblst(int pgid, int pid, int status);
-int		ft_print_termsig_fore(int sig, char *name);
+int		ft_termsig_fore(int sig, char *name);
 void 	ft_wait(t_job *current);
 int			ft_job_index(void);
 t_job			*ft_inisial_job(void);
@@ -455,5 +455,9 @@ void	ft_print_pid(int index, int pgid);
 void 			ft_foreground_job(t_job *job);
 void	ft_remove_node(t_list *tmp, t_list *pr);
 void	ft_free_job(t_job *job);
+void			ft_single_proc(t_job *job, t_pipes *st_pipes, int pid, int *add);
+void			ft_pipe_job_man(t_job *job, t_pipes *st_pipes, int *status, int add);
+char	*ft_strsignal(int sig);
+void	ft_print_backcmd(t_job *job);
 
 #endif

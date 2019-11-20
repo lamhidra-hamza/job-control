@@ -131,23 +131,6 @@ char 			*ft_cmd_value(t_tokens *st_tokens, char *cmd)
 	return (cmd);
 }
 
-t_job			*ft_inisial_job(void)
-{
-	t_job *job;
-
-	job = ft_memalloc(sizeof(t_job));
-	job->pgid = -1;
-	job->index = ft_job_index();
-	job->background = -1;
-	job->proc = NULL;
-	job->status = 0;
-	job->mark_stop = 0;
-	job->sig_term = 0;
-	job->p = '+';
-	job->cmd = ft_strdup("");
-	return (job);
-}
-
 static void		ft_cmds_exec(t_cmds *st_cmds)
 {
 	t_jobctr	*st_jobctr;
@@ -161,7 +144,6 @@ static void		ft_cmds_exec(t_cmds *st_cmds)
 		st_jobctr = st_jobctr->next;
 	}
 }
-
 
 /*
 ** Check if exist Cmd : check if Ok and permission
@@ -275,43 +257,7 @@ void			remove_backslashs(char **args)
 	}
 }
 
-void			ft_foreground_job(t_job *job)
-{
-	if (tcsetpgrp(0, job->pgid) == -1)
-		ft_putendl("ERROR in seting the controling terminal to the child process");
-	g_sign = 1;
-	ft_wait(job);
-	g_sign = 0;
-	(job->sig_term != 0) ? ft_print_termsig_fore(job->sig_term, job->cmd) : 0;
-}
 
-void			ft_manage_jobs(int pid, t_pipes *st_pipes, int *rtn)
-{
-	t_job *job;
-	t_process *process;
-	int add;
-
-	add = 0;
-	job = ft_inisial_job();
-	job->cmd = ft_cmd_value(st_pipes->st_tokens, job->cmd);
-	job->pgid = pid;
-	setpgid(job->pgid, pid);
-	job->status = RUN;
-	ft_fill_process(pid, job);
-	if (!st_pipes->bl_jobctr)
-		ft_foreground_job(job);
-	else
-	{
-		job->background = 1;
-		ft_print_pid(job->index, job->pgid);
-		add = 1;
-	}
-	if (tcsetpgrp(0, getpid()) == -1)
-		ft_putendl("ERROR in reset the controling terminal to the parent process");
-	process = job->proc->content;
-	*rtn = process->exit_status;
-	(job->status == STOPED || add) ? ft_add_job(job) : 0;
-}
 
 /*
 ** Create child proccess , check if builtens , call for apply redirection

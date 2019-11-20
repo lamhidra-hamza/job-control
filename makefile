@@ -46,9 +46,15 @@ OBJS = error_handler.o\
 	read_line/heredoc_line.o\
 	read_line/cut.o\
 	read_line/clear_line_or_window.o\
-	job_control.o\
-	job_processing.o\
-	msg_sig.o
+	job_control/add_remove.o\
+	job_control/built.o\
+	job_control/index_up.o\
+	job_control/init.o\
+	job_control/job_execution.o\
+	job_control/job_processing.o\
+	job_control/msg_sig.o\
+	job_control/output.o\
+	job_control/update_status.o
 
 FLAG = -Wall -Wextra -Werror 
 INCL = ./includes
