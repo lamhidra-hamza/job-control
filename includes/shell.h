@@ -451,4 +451,7 @@ int		ft_print_termsig_back(int sig, char *name, int index, char p);
 void	ft_jobs_built(void);
 void		ft_update_p(void);
 void		ft_update_index(void);
+void	ft_print_pid(int pgid, int index);
+void 			ft_foreground_job(t_job *job);
+
 #endif

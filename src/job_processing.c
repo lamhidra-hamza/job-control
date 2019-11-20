@@ -98,7 +98,6 @@ void    ft_job_processing(void)
 		if (job->status == STOPED && !job->mark_stop)
 		{
 			job->mark_stop = 1;
-			ft_putchar('\n');
 			ft_print_termsig_back(32, job->cmd, job->index, job->p);
 		}
 		if (job->status == EXITED)

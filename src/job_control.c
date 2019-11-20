@@ -164,7 +164,7 @@ void ft_wait(t_job *current)
 	while (1)
 	{
 		if ((pid = waitpid(-1, &status, WNOHANG | WUNTRACED)) < 0)
-			break;
+			break ;
 		if (pid == 0 && current)
 			continue;
 		else if (pid == 0)
@@ -174,7 +174,10 @@ void ft_wait(t_job *current)
 		{
 			ft_updatestatus(current, status, pid);
 			if (ft_terminated(current) || ft_stoped(current))
-					return ;
+			{
+				ft_collect_job_status();
+				return ;
+			}
 		}
 		while (tmp)
 		{
@@ -233,7 +236,7 @@ void	ft_foreground(void)
 	{
 		if (tcsetpgrp(0, job->pgid) == -1)
 			ft_putendl_fd("ERROR in seting the controling terminal to the child process", 2);
-		printf("ret == %d\n", killpg(job->pgid, SIGCONT));
+		killpg(job->pgid, SIGCONT);
 		job->status = RUN;
 		g_sign = 1;
 		ft_wait(job);
