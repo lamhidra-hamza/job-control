@@ -38,42 +38,46 @@ void	ft_putjoblst(int pgid, int pid, int status)
 	ft_printstatus(status);
 }
 
-void    ft_collect_job_status(void)
+int		ft_get_job_status(t_list *proc, int status)
 {
-	t_list *tmp;
-	t_list *proc;
-	t_job  *job;
 	t_process *process;
 	int     n_proc;
 	int     exited;
 	int		stoped;
 	int     terminated;
 
+	n_proc = 0;
+	exited = 0;
+	stoped = 0;
+	terminated = 0;
+	while (proc)
+	{
+		process = proc->content;
+		(process->status == STOPED) ? stoped++ : 0;
+		(process->status == TERMINATED) ? terminated++ : 0;
+		(process->status == EXITED) ? exited++ : 0;
+		n_proc++;
+		proc = proc->next;
+	}
+	if (stoped)
+		return (STOPED);
+	else if ((exited || terminated) && n_proc)
+		return (EXITED);
+	return (status);
+}
+
+void    ft_collect_job_status(void)
+{
+	t_list *tmp;
+	t_list *proc;
+	t_job  *job;
+
 	tmp = jobs;
 	while (tmp)
 	{
 		job = tmp->content;
 		proc = job->proc;
-		n_proc = 0;
-		exited = 0;
-		stoped = 0;
-		terminated = 0;
-		while (proc)
-		{
-			process = proc->content;
-			if (process->status == STOPED)
-				stoped++;
-			if (process->status == TERMINATED)
-				terminated++;
-			if (process->status == EXITED)
-				exited++;
-			n_proc++;
-			proc = proc->next;
-		}
-		if (stoped)
-			job->status = STOPED;
-		else if ((exited || terminated) && n_proc)
-			job->status = EXITED;
+		job->status = ft_get_job_status(proc, job->status);
 		tmp = tmp->next;
 	}
 }
@@ -89,12 +93,9 @@ void    ft_job_processing(void)
 
 	ft_update_p();
 	ft_update_index();
-	//ft_catch_sigchild(0);
 	while (tmp)
 	{
 		job = tmp->content;
-		// ft_printstatus(job->status);
-		// ft_putchar('\n');
 		if (job->status == STOPED && !job->mark_stop)
 		{
 			job->mark_stop = 1;
@@ -103,20 +104,7 @@ void    ft_job_processing(void)
 		if (job->status == EXITED)
 		{
 			ft_print_termsig_back(job->sig_term, job->cmd, job->index, job->p);
-			if (pr == NULL)
-			{
-				tmp = tmp->next;
-				free(jobs->content);
-				free(jobs);
-				jobs = tmp;
-			}
-			else
-			{
-				pr->next = tmp->next;
-				free(tmp->content);
-				free(tmp);
-				tmp = pr;
-			}
+			ft_remove_node(tmp, pr);
 		}
 		pr = tmp;
 		tmp = tmp ? tmp->next : tmp;

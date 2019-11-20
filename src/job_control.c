@@ -64,6 +64,17 @@ void		ft_update_index(void)
 	}
 }
 
+void	ft_print_backcmd(t_job *job)
+{
+	ft_putchar('[');
+	ft_putnbr(job->index);
+	ft_putchar(']');
+	(job->p) ? ft_putchar(job->p) : ft_putchar(' ');
+	ft_putchar(' ');
+	ft_putstr(job->cmd);
+	ft_putstr(" &\n");
+}
+
 void	ft_continue(void)
 {
 	t_list *tmp;
@@ -80,13 +91,7 @@ void	ft_continue(void)
 		job = tmp->content;
 		if (job->status == STOPED)
 		{
-			ft_putchar('[');
-			ft_putnbr(job->index);
-			ft_putchar(']');
-			(job->p) ? ft_putchar(job->p) : ft_putchar(' ');
-			ft_putchar(' ');
-			ft_putstr(job->cmd);
-			ft_putstr(" &\n");
+			ft_print_backcmd(job);
 			job->background = 1;
 			job->status = RUN;
 			killpg(job->pgid, SIGCONT);
@@ -154,6 +159,20 @@ void	ft_updatestatus(t_job *job, int status, int pid)
 	}
 }
 
+int		ft_current_status(t_job *current, int status, int pid)
+{
+	if (current)
+	{
+		ft_updatestatus(current, status, pid);
+		if (ft_terminated(current) || ft_stoped(current))
+		{
+			ft_collect_job_status();
+			return (1);
+		}
+	}
+	return (0);
+}
+
 void ft_wait(t_job *current)
 {
 	int pid;
@@ -170,15 +189,8 @@ void ft_wait(t_job *current)
 		else if (pid == 0)
 			break ;
 		tmp = jobs;
-		if (current)
-		{
-			ft_updatestatus(current, status, pid);
-			if (ft_terminated(current) || ft_stoped(current))
-			{
-				ft_collect_job_status();
-				return ;
-			}
-		}
+		if (ft_current_status(current, status, pid))
+			return ;
 		while (tmp)
 		{
 			job = tmp->content;
@@ -220,19 +232,36 @@ void	ft_jobs_built(void)
 	}
 }
 
+void	ft_free_job(t_job *job)
+{
+	t_list *lst;
+	t_list *to_del;
+
+	lst = job->proc;
+	while (lst)
+	{
+		ft_memdel(&lst->content);
+		to_del = lst;
+		lst = lst->next;
+		free(to_del);
+	}
+	ft_strdel(&job->cmd);
+	free(job);
+}
+
 void	ft_remove_node(t_list *tmp, t_list *pr)
 {
 	if (pr == NULL)
 	{
 		tmp = tmp->next;
-		free(jobs->content);
+		ft_free_job(jobs->content);
 		free(jobs);
 		jobs = tmp;
 	}
 	else
 	{
 		pr->next = tmp->next;
-		free(tmp->content);
+		ft_free_job(tmp->content);
 		free(tmp);
 		tmp = pr;
 	}
@@ -249,11 +278,11 @@ void	ft_foreground(void)
 		ft_putendl_fd("42sh: fg: current: no such job", 2);
 		return ;
 	}
-	job = jobs->content;
 	tmp = jobs;
 	pr = NULL;
 	while (tmp)
 	{
+		job = tmp->content;
 		if (job->status == STOPED)
 		{
 			if (tcsetpgrp(0, job->pgid) == -1)
@@ -265,11 +294,11 @@ void	ft_foreground(void)
 			ft_wait(job);
 			g_sign = 0;
 			(job->sig_term != 0) ? ft_print_termsig_fore(job->sig_term, job->cmd) : 0;
-			if (job->status == EXITED)
-				ft_remove_node(tmp, pr);
+			(job->status == EXITED) ? ft_remove_node(tmp, pr) : 0;
 			if (tcsetpgrp(0, getpgrp()) == -1)
 				ft_putendl_fd("ERROR in reset the controling terminal to the parent process", 2);
 			signal(SIGCHLD, ft_catch_sigchild);
+			break ;
 		}
 		pr = tmp;
 		tmp = tmp ? tmp = tmp->next : tmp;
@@ -297,4 +326,12 @@ int			ft_job_index(void)
 	return (1);
 }
 
-
+void	ft_print_pid(int index, int pgid)
+{
+	ft_putchar('[');
+	ft_putnbr(index);
+	ft_putchar(']');
+	ft_putchar(' ');
+	ft_putnbr(pgid);
+	ft_putchar('\n');
+}

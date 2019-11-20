@@ -275,6 +275,16 @@ void			remove_backslashs(char **args)
 	}
 }
 
+void			ft_foreground_job(t_job *job)
+{
+	if (tcsetpgrp(0, job->pgid) == -1)
+		ft_putendl("ERROR in seting the controling terminal to the child process");
+	g_sign = 1;
+	ft_wait(job);
+	g_sign = 0;
+	(job->sig_term != 0) ? ft_print_termsig_fore(job->sig_term, job->cmd) : 0;
+}
+
 void			ft_manage_jobs(int pid, t_pipes *st_pipes, int *rtn)
 {
 	t_job *job;
@@ -289,18 +299,11 @@ void			ft_manage_jobs(int pid, t_pipes *st_pipes, int *rtn)
 	job->status = RUN;
 	ft_fill_process(pid, job);
 	if (!st_pipes->bl_jobctr)
-	{
-		if (tcsetpgrp(0, job->pgid) == -1)
-			ft_putendl("ERROR in seting the controling terminal to the child process");
-		g_sign = 1;
-		ft_wait(job);
-		g_sign = 0;
-		(job->sig_term != 0) ? ft_print_termsig_fore(job->sig_term, job->cmd) : 0;
-	}
+		ft_foreground_job(job);
 	else
 	{
 		job->background = 1;
-		printf("[%d] %d\n", job->index, job->pgid);
+		ft_print_pid(job->index, job->pgid);
 		add = 1;
 	}
 	if (tcsetpgrp(0, getpid()) == -1)

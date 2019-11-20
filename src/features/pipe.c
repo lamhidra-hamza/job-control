@@ -112,11 +112,9 @@ void			ft_pipe_job_management(t_job *job, t_pipes *st_pipes, int *status, int ad
 {
 	t_process *p;
 	t_list *proc;
-	int		stop;
 
 	p = NULL;
 	proc = job->proc;
-	stop = 0;
 	if (!st_pipes->bl_jobctr)
 	{
 		if (tcsetpgrp(0, job->pgid) == -1)
@@ -135,6 +133,26 @@ void			ft_pipe_job_management(t_job *job, t_pipes *st_pipes, int *status, int ad
 		proc = proc->next;
 	}
 	(job->status == STOPED || add) ? ft_add_job(job) : 0;
+}
+
+void			ft_single_proc(t_job *job, t_pipes *st_pipes, int pid, int *add)
+{
+	job->cmd = ft_cmd_value(st_pipes->st_tokens, job->cmd);
+	if (st_pipes->next)
+		job->cmd = ft_strjoir_rtn(job->cmd, " | ", 1);
+	if (job->pgid == -1)
+	{
+		job->pgid = pid;
+		if (st_pipes->bl_jobctr)
+		{
+			ft_print_pid(job->index, job->pgid);
+			*add = 1;
+			job->background = 1;
+		}
+	}
+	setpgid(job->pgid, pid);
+	job->status = RUN;
+	ft_fill_process(pid, job);
 }
 
 int				ft_apply_pipe(t_pipes *st_pipes)
@@ -167,24 +185,7 @@ int				ft_apply_pipe(t_pipes *st_pipes)
 			exit(EXIT_FAILURE);
 		}
 		else
-		{
-			job->cmd = ft_cmd_value(st_pipes->st_tokens, job->cmd);
-			if (st_pipes->next)
-				job->cmd = ft_strjoir_rtn(job->cmd, " | ", 1);
-			if (job->pgid == -1)
-			{
-				job->pgid = pid;
-				if (st_pipes->bl_jobctr)
-				{
-					printf("[%d] %d\n", job->index, job->pgid);
-					add = 1;
-					job->background = 1;
-				}
-			}
-			setpgid(job->pgid, pid);
-			job->status = RUN;
-			ft_fill_process(pid, job);
-		}
+			ft_single_proc(job, st_pipes, pid, &add);
 		st_pipes = st_pipes->next;
 	}
 	ft_close_pipes(st_head);
